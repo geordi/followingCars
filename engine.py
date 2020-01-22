@@ -1,7 +1,7 @@
 from time import perf_counter, sleep
 import numpy as np
 import logging
-from threading import Thread
+from threading import Thread, Event
 
 class Car:
 
@@ -50,6 +50,7 @@ class Engine:
     def __init__(self):
         self.cars = []
         self.thread = None
+        self.thread_event = Event()
         self.on_simulation_step = None
         # self.cars.append(Car((0,0), (1,0)))
 
@@ -88,6 +89,9 @@ class Engine:
             logging.debug("\t{:2} - {}".format(idx, car))
 
     def restart(self):
+        if self.thread and self.thread.is_alive():
+            return
+
         self.clear_model()
         if self.__create_model:
             self.__create_model(self)
@@ -112,6 +116,8 @@ class Engine:
             step_stop = perf_counter()
             step_time = step_stop-step_start
             # wait for the next step for defined amount fo time
+            if self.thread_event.wait(0)==True:
+                break
             if step_time<delay:
                 sleep(delay-step_time)
 
@@ -121,9 +127,14 @@ class Engine:
 
     def run(self, max_iter = 100, delay = 0.0):
         if not self.thread or not self.thread.is_alive():
+            self.thread_event.clear()
             self.thread = Thread(target=self.simulate, args=(max_iter, delay))
             self.thread.daemon = True
             self.thread.start()
+
+    # set the event to tell the running thread that it should be interrupted
+    def interrupt(self):
+        self.thread_event.set()
 
 
 #########

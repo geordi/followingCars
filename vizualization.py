@@ -38,6 +38,7 @@ class App:
         self.engine.on_simulation_step = self.build_scene
         self.scene = []
         self.target_fps = 60.0
+        self.focused_car = 0
  
     
     def on_init(self):
@@ -57,14 +58,18 @@ class App:
     def build_scene(self, engine):
         self.scene = []
 
+        # if there are no cars break
         if not self.engine.cars or len(self.engine.cars)==0:
             self.scene.append((self.center, self.sprites[0]))
             return
 
-        center = self.engine.cars[0].position
-        self.scene.append((self.center, self.sprites[0]))
-        for car in self.engine.cars[1:]:
-            self.scene.append((self.center - (center-car.position), self.sprites[1]))
+        if self.focused_car>=len(self.engine.cars):
+            self.focused_car = 0
+
+        center = self.engine.cars[self.focused_car].position
+        # self.scene.append((self.center, self.sprites[self.focused_car]))
+        for idx, car in enumerate(self.engine.cars):
+            self.scene.append((self.center - (center-car.position), self.sprites[idx % len(self.sprites)]))
         
     def on_event(self, event):
         if event.type == pygame.QUIT:
@@ -75,8 +80,16 @@ class App:
                 self.running = False
             if pressed[pygame.K_r]:
                 self.engine.run(delay=1/self.target_fps)
+            if pressed[pygame.K_x]:
+                self.engine.restart()
+            if pressed[pygame.K_b]:
+                self.engine.interrupt()
+            if pressed[pygame.K_TAB]:
+                self.move_focus()
         
-            
+    def move_focus(self):
+        self.focused_car  += 1
+        self.build_scene(self.engine)
 
     def on_loop(self):
         pass
