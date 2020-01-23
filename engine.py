@@ -44,6 +44,34 @@ class ForwardCar(Car):
     def move(self):
         self.position = self.position + self.direction
 
+class Sensor:
+
+    def __init__(self, position):
+        self.position = position
+        
+    @property
+    def name(self):
+        return 'Sensor'
+
+    def sense(self, cars):
+        pass
+
+class LidarSensor(Sensor):
+
+    # position of the sensor relative to the center of the car, maximum range of the laser sensor, set of the laser in degrees
+    def __init__(self, position, max_range, step):
+        super().__init__(position)
+        self.range = max_range
+        self.step = step
+
+    @property
+    def name(self):
+        return 'Lidar, range={}, step={}'.format(self.max_range, self.step)
+
+    def sense(self, cars):
+        
+        pass
+
 
 class Engine:
 
@@ -138,11 +166,11 @@ class Engine:
 
 
 #########
-if __name__ == "__main__" :
-    engine = Engine()    
-    engine.add(ForwardCar([0,0], [1,0]))
-    engine.add(Car([0,50]))
-    engine.summary()
-    engine.run(10, 1/60)
+# if __name__ == "__main__" :
+#     engine = Engine()    
+#     engine.add(ForwardCar([0,0], [1,0]))
+#     engine.add(Car([0,50]))
+#     engine.summary()
+#     engine.run(10, 1/60)
 
     
