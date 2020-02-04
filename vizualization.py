@@ -8,7 +8,7 @@ from engine import Car, Engine
 import numpy as np
 
 
-meter2pixel = 20
+meter2pixel = 20.0
 pixel2meter = 1/meter2pixel
 
 
@@ -31,11 +31,11 @@ class Sprite:
         return -self.size/2
         
 
-class App:
+class Visualization:
     def __init__(self, engine):
         self.running = True
         self.display_surf = None
-        self.size = self.width, self.height = 640, 400
+        self.size = self.width, self.height = 800, 600
         self.center = self.width/2, self.height/2
         self.clock = Clock()
         self.font = None
@@ -74,8 +74,11 @@ class App:
         center = self.engine.cars[self.focused_car].position
         # self.scene.append((self.center, self.sprites[self.focused_car]))
         for idx, car in enumerate(self.engine.cars):
-            self.scene.append((self.center - (center-car.position), self.sprites[idx % len(self.sprites)]))
+            car_pos = self.center - (center-car.position) * meter2pixel
+            # car_pos *= meter2pixel
+            self.scene.append((car_pos, self.sprites[idx % len(self.sprites)]))
         
+
     def on_event(self, event):
         if event.type == pygame.QUIT:
             self.running = False   

@@ -18,12 +18,12 @@ class ForwardCar(Car):
     @property
     def name(self):
         return 'Forward'
-
+    @property
     def speed(self):
         return self._speed
 
     def __str__(self):
-        return "Type: {}, Position: {}, Direction: {}".format(self.name, self.position, self.direction)
+        return "Type: {}, Position: {}, Speed: {}".format(self.name, self.position, self.speed)
     
     def move(self, time_passed):
         self.position = self.position + np.array([time_passed * self.speed, 0])

@@ -6,12 +6,18 @@ import numpy as np
 
 class Engine:
 
-    def __init__(self):
+    def __init__(self, simulation_step):
+        """Initialization of the simulation engine
+        
+        Arguments:
+            simulation_step {float} -- a time that elapse between simulation steps in seconds
+        """
         self.cars = []
         self.thread = None
         self.thread_event = Event()
         self.on_simulation_step = None
-        # self.cars.append(Car((0,0), (1,0)))
+        self._simulation_step = simulation_step
+        
 
     @property
     def car_count(self):
@@ -64,7 +70,7 @@ class Engine:
             # simulation step procedure
             step_start = perf_counter()
             for car in self.cars:
-                car.move()
+                car.move(self._simulation_step)
             logging.debug("Iteration {}".format(iter))
 
             self.summary(True)
