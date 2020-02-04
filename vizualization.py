@@ -7,6 +7,11 @@ import sys
 from engine import Car, Engine
 import numpy as np
 
+
+meter2pixel = 20
+pixel2meter = 1/meter2pixel
+
+
 class Sprite:
     def __init__(self, src_image):
         self.__image = pygame.image.load(src_image).convert()
@@ -49,8 +54,8 @@ class App:
         self.font = pygame.font.Font(pygame.font.get_default_font(), 12)
 
         self.sprites = [
-           Sprite("images/SimpleDarkBlueCarTopView_small.png"), 
-           Sprite("images/SimpleOrangeCarTopView_small.png"), 
+           Sprite("images/blue-small.png"), 
+           Sprite("images/orange-small.png"), 
         ] 
         self.engine.restart()
         
