@@ -6,7 +6,7 @@ import numpy as np
 
 class Engine:
 
-    def __init__(self, simulation_step):
+    def __init__(self, step_time):
         """Initialization of the simulation engine
         
         Arguments:
@@ -16,7 +16,8 @@ class Engine:
         self.thread = None
         self.thread_event = Event()
         self.on_simulation_step = None
-        self._simulation_step = simulation_step
+        self._step_time = step_time
+        self._step_count = 0
         
 
     @property
@@ -30,6 +31,14 @@ class Engine:
     @on_simulation_step.setter
     def on_simulation_step(self, fce):
         self.__on_simulation_step = fce
+
+    @property
+    def step_count(self):
+        return self._step_count
+
+    @step_count.setter
+    def step_count(self, count):
+        self._step_count = count
 
     def clear_model(self):
         self.cars = []
@@ -47,6 +56,11 @@ class Engine:
         self.cars.append(car)
 
     def summary(self, brief = False):
+        """Summary of the simulation environment with the list of active objects in the simulation
+        
+        Keyword Arguments:
+            brief {bool} -- Is the summary brief or full, brief is used for each step of the simulation (default: {False})
+        """
         if not brief:
             logging.debug("Car train simulation engine")
             logging.debug("Number of cars: {}".format(self.car_count))
@@ -54,9 +68,10 @@ class Engine:
             logging.debug("\t{:2} - {}".format(idx, car))
 
     def restart(self):
+        """Restart the simulation from start"""
         if self.thread and self.thread.is_alive():
             return
-
+        self.step_count = 0
         self.clear_model()
         if self.__create_model:
             self.__create_model(self)
@@ -70,7 +85,7 @@ class Engine:
             # simulation step procedure
             step_start = perf_counter()
             for car in self.cars:
-                car.move(self._simulation_step)
+                car.move(self._step_time, self.cars)
             logging.debug("Iteration {}".format(iter))
 
             self.summary(True)
@@ -79,12 +94,15 @@ class Engine:
                 self.on_simulation_step(self.cars)
 
             step_stop = perf_counter()
-            step_time = step_stop-step_start
+            step_duration = step_stop-step_start
             # wait for the next step for defined amount fo time
             if self.thread_event.wait(0)==True:
                 break
-            if step_time<delay:
-                sleep(delay-step_time)
+
+            if step_duration<delay:
+                sleep(delay-step_duration)
+            
+            self.step_count += 1
 
         simulation_stop = perf_counter()
         logging.info("Simulation taken {:0.2f}s".format(simulation_stop-simulation_start))

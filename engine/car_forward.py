@@ -25,5 +25,6 @@ class ForwardCar(Car):
     def __str__(self):
         return "Type: {}, Position: {}, Speed: {}".format(self.name, self.position, self.speed)
     
-    def move(self, time_passed):
-        self.position = self.position + np.array([time_passed * self.speed, 0])
+    def move(self, step_time, cars):
+        self.position = self.position + np.array([step_time * self.speed, 0])
+        super().move(step_time, cars)

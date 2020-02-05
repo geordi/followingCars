@@ -10,8 +10,8 @@ class Car:
             size {2D array} -- size in meters of a car
         """
         self._position = np.array(position)  
-        self._create_model = None
-        self._size = size     
+        self._size = np.array(size)
+        self._sensors = []   
 
     @property
     def name(self):
@@ -20,12 +20,15 @@ class Car:
     def __str__(self):
         return "Type: {}, Position: {}, Size: {}".format(self.name, self.position, self.size)
         
-    def move(self, time_passed):
+    def move(self, step_time, cars):
         """Move a car based on the time passed from last move
         
         Arguments:
-            time_passed {double} -- time passed from last movement in seconds
+            step_time {double} -- time passed from last movement in seconds
+            cars {array[Car]} -- list of other cars in a scene to be able to get info about the scene using sensors
         """
+        for idx, sensor in enumerate(self._sensors):
+            sensor.sense(step_time, cars)
         pass
 
     @property
@@ -39,3 +42,10 @@ class Car:
     @property
     def size(self):
         return self._size
+
+    @property
+    def center(self):
+        return self.position+self.size/2
+
+    def add_sensor(self, sensor):
+        self._sensors.append(sensor)

@@ -6,30 +6,12 @@ from pygame.locals import *
 import sys
 from engine import Car, Engine
 import numpy as np
-
+from . import Sprite
 
 meter2pixel = 20.0
 pixel2meter = 1/meter2pixel
 
-
-class Sprite:
-    def __init__(self, src_image):
-        self.__image = pygame.image.load(src_image).convert()
-        self.__size = np.array(self.image.get_size())
-
-    @property
-    def image(self):
-        return self.__image
-
-
-    @property
-    def size(self):
-        return self.__size
-
-    @property
-    def offset(self):
-        return -self.size/2
-        
+    
 
 class Visualization:
     def __init__(self, engine):
@@ -104,7 +86,7 @@ class Visualization:
 
 
     def on_render(self):
-        self.display_surf.fill(pygame.Color(0,0,0))
+        self.display_surf.fill(pygame.Color(255,255,255))
         for pos, sprite in self.scene:
             relpos = pos + sprite.offset
             self.display_surf.blit(sprite.image, relpos)
@@ -132,9 +114,3 @@ class Visualization:
             self.on_render()
         self.on_cleanup()
  
- 
-# if __name__ == "__main__" :
-#     theApp = App()
-
-    
-#     theApp.on_execute()
