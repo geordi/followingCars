@@ -1,5 +1,6 @@
 import numpy as np
 from . import Sensor
+from .helper import intersect_line_car
 import math
 
 class LidarSensor(Sensor):
@@ -27,10 +28,17 @@ class LidarSensor(Sensor):
         start = self.position
         angle_step = 360/self._steps
         angle = 0
+        ray_idx = 0
         while angle<=360:
             rangle = angle * math.pi / 180
             end = start + self._max_range * np.array([math.cos(rangle), math.sin(rangle)])
             for idx, car in enumerate(cars):
                 if car==self._owner:
                     continue
+                distance = intersect_line_car(start, end, car) 
+                if not distance:
+                    self._data[ray_idx] = self._max_range
+                else:
+                    self._data[ray_idx] = distance
             angle += angle_step
+            ray_idx += 1

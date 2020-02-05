@@ -1,7 +1,7 @@
 import numpy as np
+from . import Car
 
-
-def intersect_line_line(start1, end1, start2, end2) {
+def intersect_line_line(start1, end1, start2, end2):
     """Calculate the intersection between two lines
     
     Returns:
@@ -29,4 +29,7 @@ def intersect_line_line(start1, end1, start2, end2) {
 
         return np.array([intersectionX, intersectionY])
     return None
-}
+    
+
+def intersect_line_car(start1, end1, car):
+    r = car.rectangle()
