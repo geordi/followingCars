@@ -43,17 +43,16 @@ class Car:
     def size(self):
         return self._size
 
-    @property
-    def center(self):
-        return self.position+self.size/2
-
-    def add_sensor(self, sensor):
-        self._sensors.append(sensor)
-
-    def rectangle(self):
+    def vertices(self):
         left_top = self.position-self.size/2
         right_top = left_top + [self.size[0], 0]
         right_bottom = self.position + self.size/2
         left_bottom = right_bottom - [self.size[0], 0]
         
         return [left_top, right_top, right_bottom, left_bottom]
+
+
+    def add_sensor(self, sensor):
+        self._sensors.append(sensor)
+
+    

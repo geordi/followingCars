@@ -27,4 +27,4 @@ class Sensor:
 
     @property
     def position(self):
-        return self._owner.center + self._offset
+        return self._owner.position + self._offset

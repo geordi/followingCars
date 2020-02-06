@@ -75,6 +75,7 @@ class Engine:
         self.clear_model()
         if self.__create_model:
             self.__create_model(self)
+        
         self.on_simulation_step(self)
 
     def simulate(self, max_iter, delay):
@@ -108,7 +109,7 @@ class Engine:
         logging.info("Simulation taken {:0.2f}s".format(simulation_stop-simulation_start))
 
 
-    def run(self, max_iter = 100, delay = 0.0):
+    def run(self, max_iter = 1000, delay = 0.0):
         if not self.thread or not self.thread.is_alive():
             self.thread_event.clear()
             self.thread = Thread(target=self.simulate, args=(max_iter, delay))

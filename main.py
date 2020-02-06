@@ -17,12 +17,12 @@ def kmh2ms(speed):
 superbdim = [4.861, 1.864]
 def create_model(engine):
     engine.clear_model()
-    car = ForwardCar([0,-2], superbdim, kmh2ms(30))
-    car.add_sensor(LidarSensor(car, [0,0], 20, 360))
+    car = ForwardCar([0,0], superbdim, kmh2ms(30))
+    car.add_sensor(LidarSensor(car, [0,0], 7, 60))
     engine.add(car)
-    engine.add(ForwardCar([5,-2], superbdim, kmh2ms(31)))
-    engine.add(ForwardCar([0,0], superbdim, kmh2ms(20)))
-    engine.add(Car([0,4], superbdim))
+    engine.add(ForwardCar([5,0], superbdim, kmh2ms(31)))
+    engine.add(ForwardCar([0,-2], superbdim, kmh2ms(20)))
+    engine.add(Car([0,2], superbdim))
     engine.summary()
 
 

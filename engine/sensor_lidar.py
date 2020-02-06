@@ -18,7 +18,8 @@ class LidarSensor(Sensor):
         super().__init__(owner, offset)
         self._max_range = max_range
         self._steps = steps
-        self._data = np.zeros([steps])
+        self._distances = np.zeros([steps])
+        self._intersections = [None] * steps
 
     @property
     def name(self):
@@ -27,18 +28,22 @@ class LidarSensor(Sensor):
     def sense(self, step_time, cars):
         start = self.position
         angle_step = 360/self._steps
+        for idx in range(self._steps):
+            self._distances[idx] = self._max_range
+            self._intersections[idx] = None
+
         angle = 0
         ray_idx = 0
-        while angle<=360:
+        while angle<360:
             rangle = angle * math.pi / 180
             end = start + self._max_range * np.array([math.cos(rangle), math.sin(rangle)])
             for idx, car in enumerate(cars):
                 if car==self._owner:
                     continue
-                distance = intersect_line_car(start, end, car) 
-                if not distance:
-                    self._data[ray_idx] = self._max_range
-                else:
-                    self._data[ray_idx] = distance
+                distance, intersection = intersect_line_car(start, end, car) 
+                if distance:
+                    self._distances[ray_idx] = distance
+                    self._intersections[ray_idx] = intersection
             angle += angle_step
             ray_idx += 1
+        ray_idx=0

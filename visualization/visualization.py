@@ -7,6 +7,7 @@ import sys
 from engine import Car, Engine
 import numpy as np
 from . import Sprite
+from engine import LidarSensor
 
 meter2pixel = 20.0
 pixel2meter = 1/meter2pixel
@@ -26,6 +27,8 @@ class Visualization:
         self.scene = []
         self.target_fps = 60.0
         self.focused_car = 0
+        self.metadata = []
+
  
     
     def on_init(self):
@@ -44,6 +47,7 @@ class Visualization:
 
     def build_scene(self, engine):
         self.scene = []
+        self.metadata = []
 
         # if there are no cars break
         if not self.engine.cars or len(self.engine.cars)==0:
@@ -54,12 +58,23 @@ class Visualization:
             self.focused_car = 0
 
         center = self.engine.cars[self.focused_car].position
-        # self.scene.append((self.center, self.sprites[self.focused_car]))
+        
         for idx, car in enumerate(self.engine.cars):
             car_pos = self.center - (center-car.position) * meter2pixel
-            # car_pos *= meter2pixel
+            
             self.scene.append((car_pos, self.sprites[idx % len(self.sprites)]))
-        
+            self.metadata.append((car_pos.astype(np.int), 0))
+            
+            # for v in car.vertices():
+            #     relpos = self.center - (center-v) * meter2pixel
+            #     self.metadata.append((relpos.astype(np.int), 1))
+            if car==self.engine.cars[self.focused_car]:
+                for s in car._sensors:
+                    if isinstance(s, LidarSensor):
+                        for v in s._intersections:
+                            if v is not None:
+                                relpos = self.center - (center-v) * meter2pixel
+                                self.metadata.append((relpos.astype(np.int), 1))
 
     def on_event(self, event):
         if event.type == pygame.QUIT:
@@ -86,14 +101,23 @@ class Visualization:
 
 
     def on_render(self):
-        self.display_surf.fill(pygame.Color(255,255,255))
+        self.display_surf.fill(pygame.Color(0,0,0))
         for pos, sprite in self.scene:
             relpos = pos + sprite.offset
             self.display_surf.blit(sprite.image, relpos)
         
+        for pos, typ in self.metadata:
+            if typ==0:
+                pygame.draw.circle(self.display_surf, (255,0,0), pos, 3)
+            if typ==1:
+                pygame.draw.circle(self.display_surf, (0,255,0), pos, 3)
+        
         # FPS writing
         fps_surface = self.font.render("{:.0f} FPS".format(self.clock.get_fps()), True, (255,255,255))
         self.display_surf.blit(fps_surface, (self.display_surf.get_width()-fps_surface.get_width(),0))
+        # Simulation steps writing
+        step_surface = self.font.render("{} steps".format(self.engine.step_count), True, (255,255,255))
+        self.display_surf.blit(step_surface, (self.display_surf.get_width()-step_surface.get_width(),fps_surface.get_height()+5))
 
         pygame.display.flip()
         self.clock.tick(self.target_fps)
