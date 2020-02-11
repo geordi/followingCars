@@ -115,9 +115,26 @@ class Visualization:
         # FPS writing
         fps_surface = self.font.render("{:.0f} FPS".format(self.clock.get_fps()), True, (255,255,255))
         self.display_surf.blit(fps_surface, (self.display_surf.get_width()-fps_surface.get_width(),0))
+
         # Simulation steps writing
         step_surface = self.font.render("{} steps".format(self.engine.step_count), True, (255,255,255))
         self.display_surf.blit(step_surface, (self.display_surf.get_width()-step_surface.get_width(),fps_surface.get_height()+5))
+
+        # Simulation control keys
+        run_surface = self.font.render("r - run", True, (255,255,255))
+        self.display_surf.blit(run_surface, ( 5, 5))
+
+        restart_surface = self.font.render("x - restart", True, (255,255,255))
+        self.display_surf.blit(restart_surface, ( 5, run_surface.get_height() + 5))
+
+        interupt_surface = self.font.render("b - interrupt", True, (255,255,255))
+        self.display_surf.blit(interupt_surface, ( 5, run_surface.get_height() + restart_surface.get_height() + 5))
+
+        move_focus_surface = self.font.render("TAB - move focus", True, (255,255,255))
+        self.display_surf.blit(move_focus_surface, ( 5, run_surface.get_height() + restart_surface.get_height() + interupt_surface.get_height() + 5))
+
+        quit_surface = self.font.render("ESC - quit", True, (255,255,255))
+        self.display_surf.blit(quit_surface, ( 5, run_surface.get_height() + restart_surface.get_height() + interupt_surface.get_height() + move_focus_surface.get_height() + 5))
 
         pygame.display.flip()
         self.clock.tick(self.target_fps)
