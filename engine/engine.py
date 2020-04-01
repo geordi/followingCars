@@ -6,7 +6,7 @@ import numpy as np
 
 class Engine:
 
-    def __init__(self, step_time):
+    def __init__(self, step_time, delay):
         """Initialization of the simulation engine
         
         Arguments:
@@ -18,6 +18,8 @@ class Engine:
         self.on_simulation_step = None
         self._step_time = step_time
         self._step_count = 0
+        self._delay = delay
+        self._is_running = False
         
 
     @property
@@ -42,6 +44,10 @@ class Engine:
 
     def clear_model(self):
         self.cars = []
+
+    @property
+    def is_running(self):
+        return self._is_running
 
     @property
     def create_model(self):
@@ -78,11 +84,11 @@ class Engine:
         
         self.on_simulation_step(self)
 
-    def simulate(self, max_iter, delay):
-        logging.info("Simulation start, max. iterations {}".format(max_iter))
+    def simulate(self, delay):
+        logging.info("Simulation start")
         simulation_start = perf_counter()
         # simulation loop
-        for iter in range(max_iter):
+        while True:
             # simulation step procedure
             step_start = perf_counter()
             for car in self.cars:
@@ -109,13 +115,15 @@ class Engine:
         logging.info("Simulation taken {:0.2f}s".format(simulation_stop-simulation_start))
 
 
-    def run(self, max_iter = 1000, delay = 0.0):
+    def run(self):
         if not self.thread or not self.thread.is_alive():
+            self._is_running = True
             self.thread_event.clear()
-            self.thread = Thread(target=self.simulate, args=(max_iter, delay))
+            self.thread = Thread(target=self.simulate, args=[self._delay])
             self.thread.daemon = True
             self.thread.start()
 
     # set the event to tell the running thread that it should be interrupted
     def interrupt(self):
+        self._is_running = False
         self.thread_event.set()

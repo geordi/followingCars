@@ -1,5 +1,5 @@
 
-from engine import Engine, Car, ForwardCar, LidarSensor
+from engine import Engine, Car, LidarSensor
 from visualization import Visualization
 
 def kmh2ms(speed):
@@ -17,17 +17,16 @@ def kmh2ms(speed):
 superbdim = [4.861, 1.864]
 def create_model(engine):
     engine.clear_model()
-    car = ForwardCar([0,0], superbdim, kmh2ms(30))
-    car.add_sensor(LidarSensor(car, [0,0], 7, 60))
-    engine.add(car)
-    engine.add(ForwardCar([5,0], superbdim, kmh2ms(31)))
-    engine.add(ForwardCar([0,-2], superbdim, kmh2ms(20)))
-    engine.add(Car([0,2], superbdim))
+    
+    engine.add(Car([0,0], superbdim, kmh2ms(0)))
+    engine.add(Car([5,0], superbdim, kmh2ms(20), steering=-30))
+    # engine.add(Car([0,-2], superbdim, kmh2ms(20)))
+    # engine.add(Car([0,2], superbdim))
     engine.summary()
 
 
 if __name__ == "__main__" :
-    engine = Engine(1/60.0)    
+    engine = Engine(step_time = 1/60.0, delay = 1/60.0)    
     engine.create_model = create_model
     
     app = Visualization(engine)

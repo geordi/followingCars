@@ -51,7 +51,7 @@ class Visualization:
 
         # if there are no cars break
         if not self.engine.cars or len(self.engine.cars)==0:
-            self.scene.append((self.center, self.sprites[0]))
+            self.scene.append((self.center, 0, self.sprites[0]))
             return
 
         if self.focused_car>=len(self.engine.cars):
@@ -62,8 +62,8 @@ class Visualization:
         for idx, car in enumerate(self.engine.cars):
             car_pos = self.center - (center-car.position) * meter2pixel
             
-            self.scene.append((car_pos, self.sprites[idx % len(self.sprites)]))
-            self.metadata.append((car_pos.astype(np.int), 0))
+            self.scene.append((car_pos, car._angle, self.sprites[idx % len(self.sprites)]))
+            self.metadata.append(((int(car_pos.x), int(car_pos.y)), 0))
             
             # for v in car.vertices():
             #     relpos = self.center - (center-v) * meter2pixel
@@ -83,12 +83,14 @@ class Visualization:
             pressed = pygame.key.get_pressed()
             if pressed[pygame.K_ESCAPE]:
                 self.running = False
-            if pressed[pygame.K_r]:
-                self.engine.run(delay=1/self.target_fps)
+            if pressed[pygame.K_SPACE]:
+                if self.engine.is_running:
+                    self.engine.interrupt()
+                else:
+                    self.engine.run()
             if pressed[pygame.K_x]:
                 self.engine.restart()
-            if pressed[pygame.K_b]:
-                self.engine.interrupt()
+            
             if pressed[pygame.K_TAB]:
                 self.move_focus()
         
@@ -102,9 +104,11 @@ class Visualization:
 
     def on_render(self):
         self.display_surf.fill(pygame.Color(0,0,0))
-        for pos, sprite in self.scene:
-            relpos = pos + sprite.offset
-            self.display_surf.blit(sprite.image, relpos)
+        for pos, angle, sprite in self.scene:
+            rotated = pygame.transform.rotate(sprite.image, angle)
+            rect = rotated.get_rect()
+            relpos = pos - (rect.width / 2, rect.height / 2)
+            self.display_surf.blit(rotated, relpos)
         
         for pos, typ in self.metadata:
             if typ==0:
@@ -121,20 +125,18 @@ class Visualization:
         self.display_surf.blit(step_surface, (self.display_surf.get_width()-step_surface.get_width(),fps_surface.get_height()+5))
 
         # Simulation control keys
-        run_surface = self.font.render("r - run", True, (255,255,255))
-        self.display_surf.blit(run_surface, ( 5, 5))
+        lines = '''SPACE - start/stop simulation
+        X - restart simulation
+        TAB - move focus
+        ESC - quit'''
 
-        restart_surface = self.font.render("x - restart", True, (255,255,255))
-        self.display_surf.blit(restart_surface, ( 5, run_surface.get_height() + 5))
-
-        interupt_surface = self.font.render("b - interrupt", True, (255,255,255))
-        self.display_surf.blit(interupt_surface, ( 5, run_surface.get_height() + restart_surface.get_height() + 5))
-
-        move_focus_surface = self.font.render("TAB - move focus", True, (255,255,255))
-        self.display_surf.blit(move_focus_surface, ( 5, run_surface.get_height() + restart_surface.get_height() + interupt_surface.get_height() + 5))
-
-        quit_surface = self.font.render("ESC - quit", True, (255,255,255))
-        self.display_surf.blit(quit_surface, ( 5, run_surface.get_height() + restart_surface.get_height() + interupt_surface.get_height() + move_focus_surface.get_height() + 5))
+        y = 5
+        for line in lines.split('\n'):
+            text = self.font.render(line.strip(), True, (255,255,255))
+            self.display_surf.blit(text, ( 5, y))
+            y += 5 + text.get_height()
+            
+            
 
         pygame.display.flip()
         self.clock.tick(self.target_fps)
